@@ -1,0 +1,457 @@
+\documentclass[11pt,a4paper]{article}
+
+% --- Packages ---
+\usepackage{amsfonts,amssymb,amsmath,amsthm}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{color, graphicx, wrapfig, subcaption}
+\usepackage{natbib}
+\usepackage[pagebackref=false, hyperfootnotes=false]{hyperref}
+\usepackage{url}
+\usepackage{float}
+\usepackage{booktabs}
+
+\urlstyle{sf}
+\usepackage{multirow, multicol}
+\usepackage[left=2cm, right=2cm, top=2.5cm, bottom=2.5cm]{geometry}
+
+
+
+% les macros generales - exemples
+
+%layout
+\newcommand{\HRuleTop}{\noindent\rule{\linewidth}{.5pt}}
+\newcommand{\HRuleBottom}{\rule{\linewidth}{.5pt}}
+\newcommand{\ligne}{\rule[2mm]{.3\textwidth}{0,5mm}\\}
+\newcommand{\myskip}{\vspace{\parskip}}
+\newcommand{\blank}{ \clearpage{\pagestyle{empty}\cleardoublepage} }
+
+%sets
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\X}{\mathbb X}
+\newcommand{\C}{\mathbb C}
+\newcommand{\K}{\mathbb K}
+
+\newcommand{\calN}{\mathcal N}
+\newcommand{\calM}{\mathcal M}
+\newcommand{\calA}{\mathcal A}
+\newcommand{\calB}{\mathcal B}
+\newcommand{\calE}{\mathcal E}
+\newcommand{\calF}{\mathcal F}
+\newcommand{\calL}{\mathcal L}
+\newcommand{\calG}{\mathcal G}
+\newcommand{\calP}{\mathcal P}
+\newcommand{\calS}{\mathcal S}
+\newcommand{\calU}{\mathcal U}
+\newcommand{\barA}{\overline A}
+\newcommand{\barV}{\overline V}
+
+\newcommand{\bA}{\boldsymbol{A}}
+\newcommand{\bB}{\boldsymbol{B}}
+\newcommand{\bC}{\boldsymbol{C}}
+\newcommand{\bD}{\boldsymbol{D}}
+\newcommand{\bH}{\boldsymbol{H}}
+\newcommand{\bL}{\boldsymbol{L}}
+\newcommand{\bM}{\boldsymbol{M}}
+\newcommand{\bN}{\boldsymbol{N}}
+\newcommand{\bP}{\boldsymbol{P}}
+\newcommand{\bQ}{\boldsymbol{Q}}
+\newcommand{\bR}{\boldsymbol{R}}
+\newcommand{\bW}{\boldsymbol{W}}
+\newcommand{\bT}{\boldsymbol{T}}
+\newcommand{\bU}{\boldsymbol{U}}
+\newcommand{\bX}{\boldsymbol{X}}
+\newcommand{\bS}{\boldsymbol{S}}
+
+\newcommand{\bV}{\boldsymbol{V}}
+
+\newcommand{\bzero}{\boldsymbol{0}}
+\newcommand{\be}{\boldsymbol{e}}
+\newcommand{\bff}{\boldsymbol{f}}
+\newcommand{\bI}{\boldsymbol{I}}
+\newcommand{\bx}{\boldsymbol{x}}
+\newcommand{\by}{\boldsymbol{y}}
+\newcommand{\bz}{\boldsymbol{z}}
+\newcommand{\bt}{\boldsymbol{t}}
+
+
+%text style
+\newcommand{\pkg}{\textbf}
+\newcommand{\sigle}{\textsc}
+\newcommand{\code}{\texttt}
+\newcommand{\soft}{\textsf}
+\newcommand{\expo}{\textsuperscript}
+
+%_____________ avec couleur _____________ 
+\newcommand{\cyan}[1]{{\color{cyan}#1}}
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\blue}[1]{{\color{blue}#1}}
+
+
+
+%math operator
+\newcommand{\abs}[1]{\left\lvert#1\right\overt}
+\newcommand{\bigo}[1]{\mathcal O \hskip -0,2em \left(#1\right)}
+\DeclareMathOperator{\Ker}{Ker}
+\newcommand{\littleo}[1]{o\hskip -0,2em \left(#1\right)}
+\DeclareMathOperator{\mat}{mat}
+\DeclareMathOperator{\rg}{rg}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\Sp}{Sp}
+\DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\vect}{vect}
+
+
+
+% --- Titre et Auteurs ---
+\title{Factorisation de matrices pour les systèmes de recommandation}
+\author{Équipe 26 : Mohamed Walid Chabchi - Yassine Ben Youssef - Abdessamad El Aasri - Ali Boughazi}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section{Introduction et Objectifs}
+
+L'objectif de ce projet est de remplir le fichier contenant la matrice en attribuant une valeur 0, 1 ou 2 à chaque ouvrage non lu (valeurs initialement à 9). Ces valeurs constitueront des recommandations personnalisées pour chaque abonné.
+
+\subsection{Problématique : La matrice creuse}
+Nous sommes confrontés à une matrice de données à 75\% vide (valeurs initialement à 9). La plupart des utilisateurs n'ont noté qu'une infime fraction du catalogue. Prédire les entrées manquantes est donc essentiel pour personnaliser l'expérience utilisateur.
+
+\section{Méthodologie Expérimentale} 
+\subsection{Données et Prétraitement} 
+La matrice initiale possède un taux de remplissage de \textbf{25\%} (notes : 0, 1, 2). Pour évaluer le modèle, nous avons adopté une approche de validation croisée : 
+\begin{itemize} 
+\item \textbf{Masquage :} Nous avons extrait aléatoirement \textbf{10\%} des valeurs connues pour constituer un jeu de test. 
+\item \textbf{Simulation :} Le modèle est entraîné sur les 90\% restants, puis nous comparons les prédictions avec les valeurs réelles masquées. 
+\item \textbf{Métrique :} Le taux de prédiction correct et le taux d'erreurs graves ont été utilisés comme indicateurs principaux. 
+\end{itemize}
+
+\section{Méthodes Naïves et Intuition}
+
+Avant d'aborder des modèles complexes, nous avons testé des approches intuitives pour remplir les cases vides :
+
+\begin{itemize}
+    \item \textbf{Remplissage constant :} Assigner la note 1 à toutes les cases vides.
+    \item \textbf{Moyenne de colonne / ligne :} Remplir par la moyenne de la colonne ou la moyenne de la ligne de la case $i,j$.
+\end{itemize}
+
+\subsection{Résultats des Méthodes Naïves}
+
+L'analyse des performances montre que les méthodes naïves plafonnent rapidement. Le remplissage constant (valeur 1) produit un taux de réussite d'environ 38,76\% avec un taux d'erreur grave de 0\%. 
+L'approche combinant la moyenne des lignes / des colonnes améliore légèrement la distribution des notes avec un taux de réussite aux alentours de 40,56\% avec un taux d'erreurs graves de 20,47\%, mais échoue à personnaliser les suggestions.
+Ces résultats confirment notre hypothèse : les méthodes heuristiques traitent les utilisateurs et les items de manière isolée. Elles ne parviennent pas à détecter les interactions croisées nécessaires pour une recommandation de qualité. Ce constat justifie la nécessité de passer à des modèles plus sophistiqués capables de décomposer la structure de la matrice, tels que la factorisation en matrices $\bU$ et $\bV$.
+
+\section{Modélisation par Factorisation de Matrices}
+
+La méthode suggérée consiste à approximer la matrice $\bM$ comme le produit de deux matrices de rang faible $\bU$ et $\bV$ tel que :
+$$ \bM \approx \bU \times \bV^T $$
+Où $\bU$ est de taille $n \times k$, $\bV$ de taille $m \times k$ et $\bM$ est une matrice de taille $n \times m$.
+Intuitivement, $\bU$ représente les profils des utilisateurs et $\bV$ représente les profils des items (les livres dans notre cas).
+
+\subsection{Étude du facteur latent $k$}
+La valeur de $k$ est cruciale pour factoriser la matrice $\bM$. Mathématiquement, l'égalité ne peut avoir lieu que si $\rg(\bM) \leq k$, mais intuitivement :
+\begin{itemize}
+    \item Si $k$ est trop petit, la qualité des recommandations n'est pas pertinente, les critères sélectionnés ne sont pas très pertinents (modèle trop simple).
+    \item Si $k$ est trop grand, on risque le sur-apprentissage, on ajoute plusieurs critères qui rendent la recommandation plus difficile (\textit{overfitting}).
+\end{itemize}
+La figure ci-dessous, générée par la méthode ALS, illustre bien ce principe.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.8\textwidth]{Courbe proportioncorrecte-k.png}
+    \caption{Recherche du $k$ optimal par la méthode ALS}
+    \label{fig:k_optimal}
+\end{figure}
+
+La recherche d'un $k$ optimal est donc une étape pivot du projet. De plus, il est important de noter que cette valeur optimale peut varier selon la méthode utilisée (ALS, NMF...), car chaque algorithme possède ses propres contraintes mathématiques et capacités de généralisation.
+
+\subsection{Seuils d'arrondissement}
+Il est pertinent de remarquer que le produit $\bU \bV^T$ génère des nombres réels. Puisque nos notes sont discrètes, un arrondissement s'avère nécessaire. Le choix du seuil pour affecter la note 2 aux cases vides affecte directement les métriques de succès du modèle. \\
+Initialement, un seuil par défaut (ex: 1,5 ou 1,7) était utilisé pour classer les prédictions continues en classes discrètes. Cependant, pour favoriser la \textbf{précision sur la classe 2} (recommandations fortes), nous avons fait varier ce seuil. \\
+\textbf{Problème rencontré :} Un seuil trop bas augmente le rappel mais dégrade la précision. En augmentant le seuil au-delà de 1,7, nous filtrons les faux positifs pour ne recommander que les livres ayant la plus forte probabilité d'être aimés. 
+Pour résoudre le problème, on a tracé la courbe Précision-Rappel en fonction du seuil pour trouver un compromis entre précision et rappel. 
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.8\textwidth]{Figure_1.png}
+    \caption{Courbe Précision-Rappel en fonction du seuil}
+    \label{fig:precision_rappel}
+\end{figure}
+Dans le cadre de notre étude, l'objectif principal est de maximiser la précision des recommandations, tout en conservant notre  taux de proportion correcte . Pour ce faire, nous avons ajusté le seuil d'arrondi à 1,7. Ce choix permet d'être plus sélectif dans la prédiction des notes élevées, et ainsi d'améliorer la précision des notes 2 attribuées.
+
+\subsection{Nombre d'itérations}
+ \textbf{Convergence :} Le nombre d'itérations a dû être ajusté. Paradoxalement, un nombre d'itérations trop élevé (ex: 50) peut entraîner une dégradation des résultats par rapport à un arrêt précoce (20 itérations). 
+Pour la méthode ALS par exemple, lors de la recherche du $k$ optimal, le taux de réussite pour $k=8$ dépendait du nombre d'itérations : on remarque une valeur de 53,4\% pour 50 itérations et 54,3\% pour 20 itérations.
+
+\section{Méthodes d'Approximation}
+
+\subsection{Approche Théorique : L'Algorithme ALS}
+
+\subsubsection{Formulation Mathématique}
+Soit $M$ la matrice des notes observées de dimension $n \times m$. Nous cherchons deux matrices $U \in \mathbb{R}^{n \times k}$ (utilisateurs) et $V \in \mathbb{R}^{m \times k}$ (livres) telles que $M \approx U V^T$.
+Pour ce faire, nous minimisons la fonction de coût suivante, qui combine l'erreur quadratique sur les notes connues et une régularisation de Tikhonov ($L_2$) :
+
+\begin{equation}
+    \min_{U, V} J(U, V) = \sum_{(u,i) \in \mathcal{K}} (r_{ui} - u_u^T v_i)^2 + \lambda \left( \sum_u ||u_u||^2 + \sum_i ||v_i||^2 \right)
+\end{equation}
+
+Où $\mathcal{K}$ est l'ensemble des indices des notes connues et $\lambda$ est le paramètre de régularisation empêchant les poids d'exploser.\citep{takacs2012alternating}
+
+\subsubsection{Résolution par Moindres Carrés Alternés}
+La fonction $J$ n'est pas convexe conjointement en $U$ et $V$, rendant une résolution directe par descente de gradient difficile. Cependant, si l'on fixe l'une des matrices, la fonction devient \textbf{quadratique et convexe} par rapport à l'autre. L'algorithme ALS exploite cette propriété :
+
+\begin{enumerate}
+    \item \textbf{Étape 1 (Fixer $V$, Optimiser $U$)} : Pour chaque utilisateur $u$, on annule le gradient $\frac{\partial J}{\partial u_u} = 0$. Cela aboutit à une solution analytique dont la formule est sous la forme :
+    \begin{equation}
+        u_u = (V_{I_u}^T V_{I_u} + \lambda I_k)^{-1} V_{I_u}^T R_u
+    \end{equation}
+   
+    \item \textbf{Étape 2 (Fixer $U$, Optimiser $V$)} : Symétriquement, on met à jour les profils des livres.
+\end{enumerate}
+
+\textbf{Intuition du calcul :} Le terme $V^T R_u$ projette les notes de l'utilisateur sur les caractéristiques des livres. L'alternance de ces étapes garantit la convergence vers un minimum local performant. \citep{takacs2012alternating}
+
+
+\subsubsection{Analyse Comparative des Performances de l'Oracle}
+
+\textbf{a. Résultats Quantitatifs}
+
+Le tableau ci-dessous résume les performances obtenues lors des deux tests :
+\begin{itemize}
+    \item \textbf{Test 1 (Initial) :} Configuration avec un $k$ par défaut et un seuil d'arrondissement standard de $1.5$.
+    \item \textbf{Test 2 (Optimisé) :} Configuration avec le $k$ optimal identifié ($k=8$) et un seuil strict de $1.7$.
+    \\
+\end{itemize}
+
+\begin{table}[h!]
+    \centering
+    \caption{Comparaison des performances : Défaut vs Optimisé}
+    \vspace{0.2cm}
+    \begin{tabular}{l c c c}
+        \toprule
+        \textbf{Métrique} & \textbf{Test 1} & \textbf{Test 2} & \textbf{Évolution} \\
+        & (Seuil 1.5, $k$ déf.) & (Seuil 1.7, $k$ opt.) & \\
+        \midrule
+        \textbf{Précision (Classe 2)} & 0.6174 & \textbf{0.7416} & $\mathbf{+20.1\%}$ \\
+        \textbf{Erreurs Graves} & 0.0113 & \textbf{0.0018} & $\mathbf{-84.3\%}$ \\
+        Proportion Correcte & 0.5359 & 0.5317 & $-0.8\%$ (Stable) \\
+        Rappel (Recall - Classe 2) & 0.2319 & 0.0987 & $-57.4\%$ \\
+        F1-Score (Classe 2) & 0.3371 & 0.1741 & $-48.3\%$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\textbf{b. Analyse de la Stratégie de Compensation}
+\\
+Les résultats du \textbf{Test 2} valident notre stratégie d'optimisation, qui repose sur un mécanisme de compensation entre le seuil d'arrondissement et le choix du paramètre $k$.
+
+\textbf{Conclusion :}
+\\
+Il y a eu une véritable \textbf{compensation}. L'optimisation de $k$ a permis de rattraper la perte de volume causée par le seuil, maintenant la \textit{Proportion Correcte} à un niveau quasi identique ($\approx 0.53$), tout en bénéficiant d'une sécurité (erreurs graves minimes) et d'une précision nettement supérieures.
+\subsection{Méthode NMF (Non-negative Matrix Factorization)}
+Soit $\bM \in \R^{n \times m}$ la matrice des notes, où $n$ est le nombre d'utilisateurs et $m$ le nombre de livres. Cette matrice est incomplète et l'objectif de la NMF est d'approcher $\bM$ par le produit de deux matrices de rang faible $k$ 
+$$ \bM \approx \bW \bH $$
+où :
+\begin{itemize}
+    \item $\bW \in \R^{n \times k}$ représente les préférences des utilisateurs pour ces $k$ facteurs latents.
+    \item $\bH \in \R^{k \times m}$ représente la présence de ces $k$ caractéristiques dans les livres.
+\end{itemize}
+\subsection{Problème d'optimisation}
+La contrainte principale de la NMF est que tous les coefficients doivent être positifs ou nuls : $\bW \geq 0$ et $\bH \geq 0$.
+Comme la matrice $\bM$ contient des données manquantes (les 9 ), nous introduisons une matrice masque (ou du poids)  $\bS$ définie par :
+$$
+S_{ij} = \begin{cases} 
+1 & \text{si la note } M_{ij} \text{ est connue (différente de 9)} \\
+0 & \text{sinon}
+\end{cases}
+$$
+
+Nous cherchons à minimiser la norme de Frobenius (la norme euclidienne sur les matrices ) pondérée par cette matrice masque :
+$$ \min_{\bW, \bH \geq 0} \| \bS \circ (\bM - \bW\bH) \|_F^2 $$
+avec $\circ$ le produit terme à terme. \\
+Cette norme est appelée l'erreur pour la suite de cette méthode 
+
+\subsection{Algorithme de Lee et Seung}
+Pour résoudre ce problème , nous utilisons les règles de mises à jour multiplicatives proposées par \textbf{Lee et Seung} \citep{NIPS2000_f9d11525}. Ces règles garantissent que les matrices resteront positives à chaque itération après qu'elles sont initialisées aléatoirement positives .
+
+Les formules itératives adaptées avec la matrice $\bS$ sont :
+
+$$ \bH \leftarrow \bH \circ \frac{\bW^T (\bS \circ \bM)}{\bW^T (\bS \circ (\bW\bH)) + \epsilon} $$
+$$ \bW \leftarrow \bW \circ \frac{(\bS \circ \bM) \bH^T}{(\bS \circ (\bW\bH)) \bH^T + \epsilon} $$
+
+avec le terme $\epsilon$ très petit ($10^{-8}$) pour éviter la division par zéro et ainsi que le programme crache .
+
+\subsection{Choix des paramètres pour la simulation }
+\begin{itemize}
+    \item \textbf{Rang $k$} : Nous avons testé plusieurs valeurs de $k$ . Un $k=13$ a donné l'erreur minimal parmi toutes les valeurs de k testées.
+    \item \textbf{Critère d'arrêt} : L'algorithme s'arrête si l'erreur ne varie pas entre deux itérations avec un seuil supérieur ($10^{-3}$) ou si le nombre d'itérations dépasse 2000.
+\end{itemize}
+
+\subsection{Résultats et Analyse}
+
+Après que 10\% des notes connues (soit 2,5\% de toutes les valeurs) ont été masquées aléatoirement (transformées en 9), leur prédiction avec cette méthode a abouti à ces métriques :
+\begin{itemize}
+    \item \textbf{Taux de proportion correcte} : \textbf{53,5\%}. Ce score indique que dans la majorité des cas (plus de 50\%), l'algorithme retrouve la note exacte .
+    \item \textbf{Taux d'erreurs graves}: \textbf{1,55 \%}.{Cela montre donc une bonne capacité à séparer les livres appréciés des livres rejetés.
+    \item \textbf{Erreur Quadratique Moyenne (RMSE)} : $\sqrt{\frac{\text{erreur}^{2}}{\text{nombre de notes}}} = \mathbf{0.6}$. Le RMSE signifie qu'en moyenne, la prédiction s'écarte de 0.6 point de la note réelle.
+    
+    \item \textbf{F1-score (pour la note 2)} : \textbf{33,4\%}.
+    
+\end{itemize}
+\subsection{Optimisation de la fonction de coût par SGD (Stochastic Gradient Descent)}
+L'objectif de notre approche est de minimiser la \textbf{fonction de coût} utilisée dans l'\textbf{ALS}. Il est important de renoter que ce problème d'optimisation est \textbf{non-convexe}, ce qui signifie que la surface d'erreur possède de multiples minimums locaux et des points-selles où un algorithme classique pourrait rester bloqué. Cependant, l'utilisation du \pkg{Mini-Batch SGD} (Variente du SGD travaillant sur des echantillons empiriques aléatoires) permet de surmonter cet obstacle grâce à deux mécanismes clés :
+\begin{enumerate}
+\item \textbf{L'introduction de bruit bénéfique :} En calculant le gradient sur des échantillons aléatoires (mini-lots de 10 000 notes) plutôt que sur l'ensemble de la matrice, nous introduisons un "bruit" statistique. Ce bruit aide ainsi le modèle à s'échapper des minimums locaux peu profonds.
+\item \textbf{L'intégration des biais :} L'ajustement simultané de la moyenne globale, des biais utilisateurs ($b_u$) et des biais articles ($b_i$) permet de stabiliser l'apprentissage. Ces termes absorbent les variations systématiques de notation, laissant aux matrices $\bU$ et $\bV$ la tâche de modéliser uniquement les interactions résiduelles complexes.
+\end{enumerate}
+
+Pour realiser cette optimisation , le processus débute par une initialisation aléatoire des matrices de facteurs latents $\bU$ et $\bV$ suivant une loi normale centrée en 0 avec un faible écart-type (0,05 dans notre étude) :
+\begin{equation}
+U_{i,f}, V_{j,f} \sim \mathcal{N}(0, 0.05).
+\end{equation}
+L'algorithme calcule l'erreur de prédiction $e_{i,j}$ :
+\begin{equation}
+e_{i,j} = r_{i,j} - \left( \mu + b_u + b_i + \sum_{f=1}^{k} U_{i,f} \cdot V_{j,f} \right).
+\end{equation}
+En utilisant cette erreur, nous appliquons les formules de mise à jour dérivées du gradient de la fonction de perte pour chaque paramètre. L'ajustement des paramètres s'effectue itérativement. Pour chaque lot de données, nous mettons à jour les biais et les facteurs latents en suivant la direction opposée au gradient de la fonction de perte \citep{koren2009matrix}:
+\begin{align}
+    b_u &\leftarrow b_u + \alpha \cdot (e_{i,j} - \lambda \cdot b_u), \\
+    b_i &\leftarrow b_i + \alpha \cdot (e_{i,j} - \lambda \cdot b_i), \\
+    U_{i,f} &\leftarrow U_{i,f} + \alpha \cdot (e_{i,j} \cdot V_{j,f} - \lambda \cdot U_{i,f}), \\
+    V_{j,f} &\leftarrow V_{j,f} + \alpha \cdot (e_{i,j} \cdot U_{i,f} - \lambda \cdot V_{j,f}).
+\end{align}
+
+Ici, $\alpha$ représente le \textbf{taux d'apprentissage}, qui définit l'amplitude de chaque pas vers le minimum de la fonction de coût. Le terme $e_{i,j}$ désigne l'erreur de prédiction, tandis que $\lambda$ est le coefficient de \textbf{régularisation}.
+
+La performance de l'optimisation par \textbf{SGD} repose sur une sélection rigoureuse des hyperparamètres. Le taux d'apprentissage ($\alpha = 0,02$) a été choisi pour assurer une convergence rapide sans provoquer d'instabilité numérique. Un paramètre de régularisation ($\lambda = 0,0001$) a été introduit afin de prévenir le sur-apprentissage, garantissant ainsi une meilleure généralisation sur le jeu de test. 
+Enfin, le choix du facteur latent optimal ($k=15$) résulte d'un compromis entre la capacité de reconstruction de la matrice et la precision du modèle. Ce réglage permet d'atteindre une proportion correcte  de \textbf{51,03\%} tout en limitant le taux d'erreurs graves à seulement \textbf{1,02\%}. 
+\section{Méthode Supplémentaire : Auto-encodeur}
+La factorisation de matrice décompose linéairement les interactions en facteurs latents pour capturer les tendances globales du système. Cependant, d'autres méthodes, basées sur l'IA, notamment la méthode Auto-encodeur utilisant les architectures neuronales récentes.
+\subsection{Principe et motivation de la méthode}
+La méthode utilise un autoencodeur neuronal \citep{sanderson2017neuralnet}  pour la complétion d’une matrice de recommandations discrètes, en apprenant une représentation latente des préférences utilisateurs à partir des notes observées.  
+Si cette approche permet de modéliser des interactions non linéaires, son application directe est limitée par la confusion entre notes nulles et données manquantes, le déséquilibre des classes et le choix arbitraire des seuils.
+
+La méthode proposée corrige ces points par un encodage explicite, une perte masquée et pondérée, une régularisation forte et une discrétisation adaptative, afin d’obtenir un compromis robuste entre précision et contrôle des erreurs graves.
+Notre approche s’inscrit dans la continuité de AutoRec \citep{sedhain2015autorec}, qui introduit l’usage des autoencodeurs pour la complétion de matrices de recommandation. Nous étendons ce cadre en traitant explicitement la distinction entre données manquantes et notes nulles, le déséquilibre des classes et la calibration des décisions discrètes.
+
+
+
+
+
+\subsection{Autoencodeur régularisé pour la complétion de matrice}
+
+
+\subsubsection{Encodage de l’entrée}
+
+Afin d’éviter toute ambiguïté entre une note nulle réelle ($0$) et une note manquante, chaque entrée $R_{ui}$ est encodée sous la forme d’un vecteur one-hot de dimension $4$ :
+\[
+R_{ui} =
+\begin{cases}
+[1,0,0,0] & \text{si } R_{ui}=0,\\
+[0,1,0,0] & \text{si } R_{ui}=1,\\
+[0,0,1,0] & \text{si } R_{ui}=2,\\
+[0,0,0,1] & \text{si } R_{ui}=9.
+\end{cases}
+\]
+Ainsi, chaque utilisateur est représenté par un vecteur de dimension $4I$.  
+Cet encodage force le modèle à apprendre explicitement la différence entre absence d’information et préférence négative.
+
+\subsubsection{Architecture de l’autoencodeur}
+
+L’autoencodeur est formulé comme une fonction
+\[
+\hat{R}_u = g_\phi\!\left(f_\theta(x_u)\right),
+\]
+où $x_u \in \mathbb{R}^{4I}$ est l’encodage one-hot de l’utilisateur $u$.
+
+L’encodeur $f_\theta$ projette l’entrée dans un espace latent de dimension $d=128$ :
+\[
+z_u = \tanh\!\left(W_2 \,\mathrm{ReLU}\!\left(\mathrm{Dropout}\left(W_1 x_u + b_1\right)\right) + b_2\right),
+\]
+tandis que le décodeur reconstruit une prédiction continue
+\[
+\hat{R}_u = W_4 \,\mathrm{Dropout}\!\left(\mathrm{ReLU}\!\left(W_3 z_u + b_3\right)\right) + b_4.
+\]
+
+Un taux de \emph{dropout} élevé ($67\%$) est appliqué dans l’encodeur et le décodeur afin de limiter la mémorisation directe de la matrice d’entraînement et de favoriser l’apprentissage de structures globales.
+
+\subsubsection{Fonction de perte masquée et pondérée}
+
+L’apprentissage est réalisé uniquement sur les notes observées à l’aide d’un masque
+\[
+M_{ui} =
+\begin{cases}
+1 & \text{si } R_{ui} \neq 9,\\
+0 & \text{sinon}.
+\end{cases}
+\]
+
+La fonction de perte utilisée est une erreur quadratique moyenne pondérée :
+\[
+\mathcal{L} =
+\frac{\sum_{u,i} M_{ui} \, W_{ui} \left(\hat{R}_{ui} - R_{ui}\right)^2}
+{\sum_{u,i} M_{ui} \, W_{ui}},
+\]
+où les poids $W_{ui}$ dépendent de la classe de la note réelle.  
+Ils sont choisis inversement proportionnels à la fréquence des classes $0$, $1$ et $2$ dans les données d’entraînement :
+\[
+W_c \propto \frac{1}{\mathrm{freq}(c)}.
+\]
+
+Cette pondération empêche le modèle de converger vers une solution dégénérée consistant à prédire systématiquement la classe majoritaire ($1$).
+
+
+
+
+\subsubsection{Discrétisation adaptative des prédictions}
+
+Les sorties de l’autoencodeur sont continues dans l’intervalle $[0,2]$.  
+Un arrondi naïf impose des seuils arbitraires, potentiellement sous-optimaux.  
+On introduit donc deux seuils $t_0$ et $t_1$ tels que :
+\[
+\hat{R}_{ui}^{\text{disc}} =
+\begin{cases}
+0 & \text{si } \hat{R}_{ui} < t_0,\\
+1 & \text{si } t_0 \le \hat{R}_{ui} < t_1,\\
+2 & \text{si } \hat{R}_{ui} \ge t_1.
+\end{cases}
+\]
+
+Les seuils $(t_0,t_1)$ sont déterminés par recherche exhaustive sur les notes connues du jeu d’entraînement, en maximisant le taux de proportion correcte.  
+Cette calibration permet d’adapter automatiquement les frontières de décision au comportement réel du modèle.
+
+\subsubsection{Évaluation}
+
+Le modèle est évalué sur un sous-ensemble de notes masquées a priori.  
+Les métriques retenues sont :
+\begin{itemize}
+    \item la proportion correcte : 55\%
+    \item le taux d’erreurs graves (confusion $0 \leftrightarrow 2$): 1.2\%
+    \item le F1-score pour la classe $2$: 0.45 (c'est le plus haut parmi toutes les méthodes utilisées)
+\end{itemize}
+
+Les résultats montrent que la combinaison \emph{encodage explicite + régularisation forte + loss pondérée + seuils adaptatifs} améliore significativement le taux de proportion correcte tout en maintenant un faible taux d’erreurs graves, comparativement à une approche d’autoencodeur standard.
+
+\section{Conclusions}
+
+
+Le projet démontre que la factorisation de matrices, bien que plus complexe que les méthodes naïves, est indispensable pour traiter des données non forcément linéaires. L'ajustement des paramètres comme la dimension latente $k$ ou le nombre d'itérations constitue la clé pour obtenir un système de recommandation fiable et performant. L'approche ALS optimisée reste, dans le cadre de nos tests, la solution la plus pragmatique. Elle offre le meilleur compromis entre coût computationnel, précision et sécurité des prédictions (minimisation des erreurs graves ) un critère critique pour l'application visée.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{agsm}  
+\clearpage
+\phantomsection 
+\addcontentsline{toc}{section}{Bibliographie} 
+\bibliography{Ref} 
+
+
+\end{document}
